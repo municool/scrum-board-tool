@@ -1,11 +1,18 @@
-using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
+using scrum_board_tool.Server.Model;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddRazorPages();
+
+builder.Services.AddDbContextFactory<ScrumBoardDbContext>(
+        options =>
+            options.UseMySql(builder.Configuration.GetConnectionString("scrumboardDb"), new MySqlServerVersion(new Version(8, 1, 0))));
 
 var app = builder.Build();
 
@@ -21,7 +28,7 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();

@@ -11,11 +11,8 @@ namespace scrum_board_tool.Server.Model
         public DbSet<Shared.Task> Task { get; set; } = null!;
         public DbSet<User> User { get; set; } = null!;
 
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseMySQL("server=localhost;database=library;user=user;password=password");
-        }
+            => optionsBuilder.UseMySql("Server=localhost;Database=scrumboard;Uid=dbuser;Pwd=Dev_123!", new MySqlServerVersion(new Version(8, 1, 0)));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
