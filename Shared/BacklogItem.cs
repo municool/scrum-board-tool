@@ -1,6 +1,4 @@
-﻿using scrum_board_tool.Server.Model;
-
-namespace scrum_board_tool.Shared
+﻿namespace scrum_board_tool.Shared
 {
     public class BacklogItem
     {
