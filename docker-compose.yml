@@ -1,0 +1,25 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: mysql:8.1.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: DevRoot_123!
+      MYSQL_DATABASE: scrumboard
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: Dev_123!
+    ports:
+      - "3306:3306"
+    volumes:
+      - data:/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+volumes:
+  data:
