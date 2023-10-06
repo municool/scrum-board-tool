@@ -23,7 +23,7 @@ jobs:
             username: ${{ secrets.REGISTRY_USERNAME }}
             password: ${{ secrets.REGISTRY_PASSWORD }}
         - run: |
-            docker build ./Server -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/scrumboardtoolserver:${{ github.sha }}
+            docker build -f ./Server -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/scrumboardtoolserver:${{ github.sha }}
             docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/scrumboardtoolserver:${{ github.sha }}
 
         - name: 'Deploy to Azure Container Instances'
