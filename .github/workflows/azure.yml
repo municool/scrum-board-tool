@@ -1,5 +1,7 @@
-on: [push]
-name: Linux_Container_Workflow
+on: 
+    workflow_dispatch:
+
+name: Build Container and push to Azure
 
 jobs:
     build-and-deploy:
