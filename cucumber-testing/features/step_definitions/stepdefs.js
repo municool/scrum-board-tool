@@ -1,34 +1,36 @@
-const assert = require('assert');
-const { Given, When, Then } = require('@cucumber/cucumber');
+const { Builder, By, Capabilities, Key } = require('selenium-webdriver');
+const { Given, When, Then, AfterAll } = require('@cucumber/cucumber');
+const { expect } = require('chai');
 
+require("chromedriver");
 
-Given('I have access to the scrum-board-tool', function () {
+const capabilities = Capabilities.chrome();
+capabilities.set('chromeOptions', { "w3c": false });
+const driver = new Builder().withCapabilities(capabilities).build();
+
+Given('I have access to the scrum-board-tool', async function () {
+    await driver.get('https://scrumboardtool.azurewebsites.net/');
+});
+
+When('I press New Project', async function () {
+    await driver.findElement(By.name('newproject')).click();
+});
+
+Then('New Project View gets shown', async function () {
+    expect(await driver.findElement(By.name("projectmodal"))).not.equal(null);
+});
+
+When('I enter name and description and press save', async function () {
+    await driver.findElement(By.name("namefield")).sendKeys("TestProjectCucumber");
+    await driver.findElement(By.name("descriptionfield")).sendKeys("This is a test description");
+    await driver.findElement(By.name("save")).click();
+});
+
+Then('New Project gets created', async function () {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
 });
 
-
-Given('I have the Projectoverview', function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
-});
-
-When('I press {string}', function (string) {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
-});
-
-Then('New Project View gets shown', function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
-});
-
-When('I enter name and description and press save', function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
-});
-
-Then('New Project gets created', function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
+AfterAll(async function () {
+    await driver.quit();
 });
