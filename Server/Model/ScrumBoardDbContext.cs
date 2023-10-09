@@ -47,6 +47,14 @@ namespace scrum_board_tool.Server.Model
                 entity.HasOne(e => e.BacklogItem).WithMany(e => e.Tasks);
                 entity.HasOne(e => e.User).WithMany(e => e.Tasks);
             });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired();
+                entity.HasOne(d => d.Project)
+                    .WithMany(s => s.Users);
+            });
         }
     }
 }
