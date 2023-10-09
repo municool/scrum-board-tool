@@ -15,11 +15,21 @@ services:
     volumes:
       - data:/data
 
+  app:
+    image: scrumboardregistry.azurecr.io/scrumboardtoolserver:latest
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
+    depends_on:
+      - db
 
 volumes:
   data:
