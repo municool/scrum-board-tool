@@ -1,0 +1,118 @@
+﻿@page "/projects"
+
+@using Radzen.Blazor
+@using scrum_board_tool.Shared
+@inject HttpClient http
+
+<PageTitle>Projekte</PageTitle>
+
+<h1>Lieferanten</h1>
+
+<RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="New Project" Click="@InsertRow" Disabled=@(projectToInsert != null) />
+<RadzenDataGrid @ref="projectsGrid" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="Radzen.DataGridEditMode.Single"
+                Data="@projects" TItem="Project" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+    <Columns>
+        <RadzenDataGridColumn TItem="Project" Property="Id" Title="Project Id" />
+        <RadzenDataGridColumn TItem="Project" Property="Name" Title="Project">
+            <EditTemplate Context="project">
+                <RadzenTextBox @bind-Value="project.Name" Style="width:100%; display: block" Name="Name" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Project" Property="Description" Title="Beschreibung">
+            <EditTemplate Context="project">
+                <RadzenTextBox @bind-Value="project.Description" Style="width:100%; display: block" Name="Name" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Project" Context="whateaver" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
+            <Template Context="project">
+                <RadzenButton Icon="edit" ButtonStyle="Radzen.ButtonStyle.Light" Class="m-1" Click="@(args => EditRow(project))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="project">
+                <RadzenButton Icon="save" Size="Radzen.ButtonSize.Small" Click="@((args) => SaveRow(project))" />
+                <RadzenButton Icon="cancel" Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Secondary" Click="@((args) => CancelEdit(project))" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Project" Context="project" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="80px">
+            <Template Context="project">
+                <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="delete" Size="Radzen.ButtonSize.Small" Class="m-2" Click="@(args => DeleteRow(project))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="project">
+                <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="delete" Size="Radzen.ButtonSize.Small" Class="m-2" Click="@(args => DeleteRow(project))">
+        </RadzenButton>
+        </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+
+@code {
+    RadzenDataGrid<Project>? projectsGrid;
+    IEnumerable<Project> projects = new List<Project>();
+
+    protected override async void OnInitialized()
+    {
+        base.OnInitialized();
+
+        projects = (await http.GetFromJsonAsync<Project[]>("project"))?.ToList() ?? new List<Project>();
+        StateHasChanged();
+
+    }
+    async Task EditRow(Project project)
+    {
+        await projectsGrid.EditRow(project);
+    }
+
+    async void OnUpdateRow(Project project)
+    {
+        if (project == projectToInsert)
+        {
+            projectToInsert = null;
+        }
+
+        _ = await http.PostAsJsonAsync($"project/{project.Id}", project);
+        StateHasChanged();
+    }
+
+    async Task SaveRow(Project project)
+    {
+        if (project == projectToInsert)
+        {
+            projectToInsert = null;
+        }
+
+        await projectsGrid.UpdateRow(project);
+    }
+
+    void CancelEdit(Project project)
+    {
+        if (project == projectToInsert)
+        {
+            projectToInsert = null;
+        }
+
+        projectsGrid.CancelEditRow(project);
+
+    }
+
+    async Task DeleteRow(Project project)
+    {
+
+    }
+
+    Project? projectToInsert;
+
+    async Task InsertRow()
+    {
+        projectToInsert = new Project();
+
+        await projectsGrid.InsertRow(projectToInsert);
+    }
+
+    async void OnCreateRow(Project project)
+    {
+        _ = await http.PostAsJsonAsync("project", project);
+        StateHasChanged();
+    }
+}

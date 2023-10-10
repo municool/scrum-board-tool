@@ -49,7 +49,7 @@ namespace scrum_board_tool.Server.Migrations
 
                     b.HasIndex("SprintId");
 
-                    b.ToTable("BacklogItem");
+                    b.ToTable("BacklogItem", (string)null);
                 });
 
             modelBuilder.Entity("scrum_board_tool.Shared.Project", b =>
@@ -68,7 +68,7 @@ namespace scrum_board_tool.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Project");
+                    b.ToTable("Project", (string)null);
                 });
 
             modelBuilder.Entity("scrum_board_tool.Shared.Sprint", b =>
@@ -94,7 +94,7 @@ namespace scrum_board_tool.Server.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Sprint");
+                    b.ToTable("Sprint", (string)null);
                 });
 
             modelBuilder.Entity("scrum_board_tool.Shared.Task", b =>
@@ -126,7 +126,7 @@ namespace scrum_board_tool.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Task");
+                    b.ToTable("Task", (string)null);
                 });
 
             modelBuilder.Entity("scrum_board_tool.Shared.User", b =>
@@ -150,7 +150,7 @@ namespace scrum_board_tool.Server.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
                 });
 
             modelBuilder.Entity("scrum_board_tool.Shared.BacklogItem", b =>

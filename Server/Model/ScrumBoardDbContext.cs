@@ -8,7 +8,7 @@ namespace scrum_board_tool.Server.Model
         public DbSet<Project> Project { get; set; } = null!;
         public DbSet<Sprint> Sprint { get; set; } = null!;
         public DbSet<BacklogItem> BacklogItem { get; set; } = null!;
-        public DbSet<Shared.Task> Task { get; set; } = null!;
+        public DbSet<WorkTask> Task { get; set; } = null!;
         public DbSet<User> User { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -40,7 +40,7 @@ namespace scrum_board_tool.Server.Model
                 entity.HasOne(e => e.Sprint).WithMany(e => e.BacklogItems);
             });
 
-            modelBuilder.Entity<Shared.Task>(entity =>
+            modelBuilder.Entity<WorkTask>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired();

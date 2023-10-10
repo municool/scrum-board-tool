@@ -7,6 +7,6 @@
         public string Role { get; set; } = string.Empty;
 
         public virtual Project Project { get; set; } = null!;
-        public virtual ICollection<Task> Tasks { get; set; } = null!;
+        public virtual ICollection<WorkTask> Tasks { get; set; } = null!;
     }
 }

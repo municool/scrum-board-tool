@@ -10,6 +10,6 @@
         public int Effort { get; set; }
 
         public virtual Sprint? Sprint { get; set; }
-        public virtual ICollection<Task> Tasks{ get; set; } = null!;
+        public virtual ICollection<WorkTask> Tasks{ get; set; } = null!;
     }
 }

@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "scrum-board-tool.Server", "Server\scrum-board-tool.Server.csproj", "{D7520841-C722-4B6D-99B5-16BEAA07F418}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "scrum-board-tool.Server", "Server\scrum-board-tool.Server.csproj", "{D7520841-C722-4B6D-99B5-16BEAA07F418}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "scrum-board-tool.Client", "Client\scrum-board-tool.Client.csproj", "{869D23BA-75BA-46F3-9F1B-D9F33A8FA139}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "scrum-board-tool.Client", "Client\scrum-board-tool.Client.csproj", "{869D23BA-75BA-46F3-9F1B-D9F33A8FA139}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "scrum-board-tool.Shared", "Shared\scrum-board-tool.Shared.csproj", "{72F88DCD-92C9-4EAD-812E-F81B0B543DD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "scrum-board-tool.Shared", "Shared\scrum-board-tool.Shared.csproj", "{72F88DCD-92C9-4EAD-812E-F81B0B543DD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

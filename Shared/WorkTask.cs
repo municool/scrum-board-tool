@@ -2,7 +2,7 @@
 
 namespace scrum_board_tool.Shared
 {
-    public class Task
+    public class WorkTask
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
