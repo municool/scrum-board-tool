@@ -5,6 +5,8 @@ using scrum_board_tool.Shared;
 
 namespace scrum_board_tool.Server.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
     public class BacklogController : ControllerBase
     {
 
