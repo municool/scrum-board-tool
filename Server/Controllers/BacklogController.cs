@@ -5,57 +5,61 @@ using scrum_board_tool.Shared;
 
 namespace scrum_board_tool.Server.Controllers
 {
-    public class ProjectController : ControllerBase
+    public class BacklogController : ControllerBase
     {
+
         private readonly IDbContextFactory<ScrumBoardDbContext> _dbContextFactory;
 
-        public ProjectController(IDbContextFactory<ScrumBoardDbContext> dbContextFactory)
+        public BacklogController(IDbContextFactory<ScrumBoardDbContext> dbContextFactory)
         {
             _dbContextFactory = dbContextFactory;
         }
 
         [HttpGet]
-        public IEnumerable<Project> GetAllProjects()
+        public IEnumerable<BacklogItem> GetAllBacklogItems()
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                return context.Project.ToList();
+                return context.BacklogItem.ToList();
             }
         }
 
         [HttpGet("id")]
-        public Project? GetById(int id)
+        public BacklogItem? GetById(int id)
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                return context.Project.FirstOrDefault(p => p.Id == id);
+                return context.BacklogItem.FirstOrDefault(p => p.Id == id);
             }
         }
 
         [HttpPost]
-        public ActionResult Create([FromBody] Project project)
+        public ActionResult Create([FromBody] BacklogItem project)
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                context.Project.Add(project);
+                context.BacklogItem.Add(project);
                 context.SaveChanges();
             }
             return Ok();
         }
 
         [HttpPost("id")]
-        public ActionResult Edit(int id, [FromBody] Project project)
+        public ActionResult Edit(int id, [FromBody] BacklogItem project)
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                var oldProject = context.Project.FirstOrDefault(p => p.Id == id);
+                var oldBacklogItem = context.BacklogItem.FirstOrDefault(p => p.Id == id);
 
-                if (oldProject != null)
+                if (oldBacklogItem != null)
                 {
-                    oldProject.Name = project.Name;
-                    oldProject.Description = project.Description;
+                    oldBacklogItem.Name = project.Name;
+                    oldBacklogItem.Description = project.Description;
+                    oldBacklogItem.State = project.State;
+                    oldBacklogItem.Effort = project.Effort;
+                    oldBacklogItem.Sprint = project.Sprint;
 
-                    context.Project.Update(oldProject);
+                    context.BacklogItem.Update(oldBacklogItem);
                     context.SaveChanges();
                 }
                 else
@@ -71,11 +75,11 @@ namespace scrum_board_tool.Server.Controllers
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                var project = context.Project.FirstOrDefault(p => p.Id == id);
+                var project = context.BacklogItem.FirstOrDefault(p => p.Id == id);
 
                 if (project != null)
                 {
-                    context.Project.Remove(project);
+                    context.BacklogItem.Remove(project);
                     context.SaveChanges();
                 }
                 else
