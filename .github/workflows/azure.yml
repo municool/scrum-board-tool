@@ -33,5 +33,5 @@ jobs:
             username: ${{ secrets.REGISTRY_USERNAME }}
             password: ${{ secrets.REGISTRY_PASSWORD }}
         - run: |
-            docker build -f ./Server/Dockerfile -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/scrumboardtoolserver:${{ github.sha }} .
-            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/scrumboardtoolserver:${{ github.sha }}
+            docker build -f ./Server/Dockerfile -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/scrumboardtoolserver:latest .
+            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/scrumboardtoolserver:latest
