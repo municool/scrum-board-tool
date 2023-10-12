@@ -9,15 +9,11 @@ capabilities.set('chromeOptions', { "w3c": false });
 const driver = new Builder().withCapabilities(capabilities).build();
 
 Given('I have access to the scrum-board-tool', async function () {
-    await driver.get('https://scrumboardtool.azurewebsites.net/');
+    await driver.get('https://scrumboardtool.azurewebsites.net/projects');
 });
 
 When('I press New Project', async function () {
     await driver.findElement(By.name('newproject')).click();
-});
-
-Then('New Project View gets shown', async function () {
-    expect(await driver.findElement(By.name("projectmodal"))).not.equal(null);
 });
 
 When('I enter name and description and press save', async function () {

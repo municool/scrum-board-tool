@@ -1,13 +1,13 @@
-﻿@page "/projects"
+﻿@page "/"
 
 @using scrum_board_tool.Shared
 @inject HttpClient http
 
 <PageTitle>Projekte</PageTitle>
 
-<h1>Lieferanten</h1>
+<h1>Projekte</h1>
 
-<RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="New Project" Click="@InsertRow" Disabled=@(projectToInsert != null) />
+<RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="New Project" Click="@InsertRow" Disabled=@(projectToInsert != null) id="newproject"/>
 <RadzenDataGrid @ref="projectsGrid" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="Radzen.DataGridEditMode.Single"
                 Data="@projects" TItem="Project" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
     <Columns>
