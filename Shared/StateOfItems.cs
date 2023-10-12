@@ -6,4 +6,11 @@
         InProgress,
         Done
     }
+    public enum Role
+    {
+        Dev,
+        Testing,
+        Requirenments,
+        Deploying
+    }
 }

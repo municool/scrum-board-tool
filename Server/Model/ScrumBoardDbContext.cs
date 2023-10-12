@@ -37,6 +37,7 @@ namespace scrum_board_tool.Server.Model
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired();
+                entity.Property(e => e.State).HasConversion<string>();
                 entity.HasOne(e => e.Sprint).WithMany(e => e.BacklogItems);
             });
 
@@ -45,6 +46,7 @@ namespace scrum_board_tool.Server.Model
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired();
                 entity.HasOne(e => e.BacklogItem).WithMany(e => e.Tasks);
+                entity.Property(e => e.State).HasConversion<string>();
                 entity.HasOne(e => e.User).WithMany(e => e.Tasks);
             });
 
@@ -52,6 +54,7 @@ namespace scrum_board_tool.Server.Model
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired();
+                entity.Property(e => e.Role).HasConversion<string>();
                 entity.HasOne(d => d.Project)
                     .WithMany(s => s.Users);
             });

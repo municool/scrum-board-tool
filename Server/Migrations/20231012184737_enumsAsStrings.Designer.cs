@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using scrum_board_tool.Server.Model;
 
@@ -10,9 +11,11 @@ using scrum_board_tool.Server.Model;
 namespace scrum_board_tool.Server.Migrations
 {
     [DbContext(typeof(ScrumBoardDbContext))]
-    partial class ScrumBoardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231012184737_enumsAsStrings")]
+    partial class enumsAsStrings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
