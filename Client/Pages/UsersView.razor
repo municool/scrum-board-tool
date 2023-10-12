@@ -1,0 +1,135 @@
+﻿@page "/users"
+@layout StartLayout
+
+@using scrum_board_tool.Shared
+@inject HttpClient http
+
+<PageTitle>Mitglieder</PageTitle>
+
+<h1>Mitglieder</h1>
+
+<RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="New User" Click="@InsertRow" Disabled=@(userToInsert != null) id="newuser" />
+<RadzenDataGrid @ref="usersGrid" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="Radzen.DataGridEditMode.Single"
+                Data="@users" TItem="User" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+    <Columns>
+        <RadzenDataGridColumn TItem="User" Property="Id" Title="User Id" />
+        <RadzenDataGridColumn TItem="User" Property="Name" Title="Name">
+            <EditTemplate Context="user">
+                <RadzenTextBox @bind-Value="user.Name" Style="width:100%; display: block" Name="Name"/>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="User" Property="Role" Title="Rolle">
+            <EditTemplate Context="user">
+                <RadzenTextBox @bind-Value="user.Role" Style="width:100%; display: block" Name="Role" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="User" Context="whateaver" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
+            <Template Context="user">
+                <RadzenButton Icon="edit" ButtonStyle="Radzen.ButtonStyle.Light" Class="m-1" Click="@(args => EditRow(user))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="user">
+                <RadzenButton Icon="save" Size="Radzen.ButtonSize.Small" Click="@((args) => SaveRow(user))" />
+                <RadzenButton Icon="cancel" Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Secondary" Click="@((args) => CancelEdit(user))" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="User" Context="user" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="80px">
+            <Template Context="user">
+                <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="delete" Size="Radzen.ButtonSize.Small" Class="m-2" Click="@(args => DeleteRow(user))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="user">
+                <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="delete" Size="Radzen.ButtonSize.Small" Class="m-2" Click="@(args => DeleteRow(user))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+
+@code {
+    RadzenDataGrid<User>? usersGrid;
+    IEnumerable<User> users = new List<User>();
+
+    protected override async void OnInitialized()
+    {
+        base.OnInitialized();
+
+        users = (await http.GetFromJsonAsync<User[]>("user"))?.ToList() ?? new List<User>();
+        StateHasChanged();
+
+    }
+    async Task EditRow(User user)
+    {
+        if (usersGrid != null)
+        {
+            await usersGrid.EditRow(user);
+        }
+    }
+
+    async void OnUpdateRow(User user)
+    {
+        if (user == userToInsert)
+        {
+            userToInsert = null;
+        }
+
+        _ = await http.PostAsJsonAsync($"user/{user.Id}", user);
+        StateHasChanged();
+    }
+
+    async Task SaveRow(User user)
+    {
+        if (user == userToInsert)
+        {
+            userToInsert = null;
+        }
+        if (usersGrid != null)
+        {
+            await usersGrid.UpdateRow(user);
+        }
+    }
+
+    void CancelEdit(User user)
+    {
+        if (user == userToInsert)
+        {
+            userToInsert = null;
+        }
+        if (usersGrid != null)
+        {
+            usersGrid.CancelEditRow(user);
+        }
+
+    }
+
+    async Task DeleteRow(User user)
+    {
+        if (user == userToInsert)
+        {
+            userToInsert = null;
+        }
+        if (usersGrid != null)
+        {
+            _ = await http.DeleteAsync("user\\" + user.Id);
+            StateHasChanged();
+        }
+    }
+
+    User? userToInsert;
+
+    async Task InsertRow()
+    {
+        userToInsert = new User();
+        if (usersGrid != null)
+        {
+            await usersGrid.InsertRow(userToInsert);
+        }
+    }
+
+    async void OnCreateRow(User user)
+    {
+        _ = await http.PostAsJsonAsync("user", user);
+        StateHasChanged();
+    }
+}

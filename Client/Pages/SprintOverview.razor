@@ -1,0 +1,140 @@
+﻿@page "/sprints"
+@layout StartLayout
+
+@using scrum_board_tool.Shared
+@inject HttpClient http
+
+<PageTitle>Mitglieder</PageTitle>
+
+<h1>Mitglieder</h1>
+
+<RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="New Sprint" Click="@InsertRow" Disabled=@(sprintToInsert != null) id="newsprint" />
+<RadzenDataGrid @ref="sprintsGrid" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="Radzen.DataGridEditMode.Single"
+                Data="@sprints" TItem="Sprint" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+    <Columns>
+        <RadzenDataGridColumn TItem="Sprint" Property="Id" Title="Sprint Id" />
+        <RadzenDataGridColumn TItem="Sprint" Property="Name" Title="Name">
+            <EditTemplate Context="sprint">
+                <RadzenTextBox @bind-Value="sprint.Name" Style="width:100%; display: block" Name="Name" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Sprint" Property="StartDate" Title="Start">
+            <EditTemplate Context="sprint">
+                <RadzenDatePicker @bind-Value="sprint.StartDate" Style="width:100%; display: block" Name="Role" ShowTime="false"/>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Sprint" Property="EndDate" Title="Ende">
+            <EditTemplate Context="sprint">
+                <RadzenDatePicker @bind-Value="sprint.EndDate" Style="width:100%; display: block" Name="Role" ShowTime="false" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Sprint" Context="whateaver" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
+            <Template Context="sprint">
+                <RadzenButton Icon="edit" ButtonStyle="Radzen.ButtonStyle.Light" Class="m-1" Click="@(args => EditRow(sprint))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="sprint">
+                <RadzenButton Icon="save" Size="Radzen.ButtonSize.Small" Click="@((args) => SaveRow(sprint))" />
+                <RadzenButton Icon="cancel" Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Secondary" Click="@((args) => CancelEdit(sprint))" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Sprint" Context="sprint" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="80px">
+            <Template Context="sprint">
+                <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="delete" Size="Radzen.ButtonSize.Small" Class="m-2" Click="@(args => DeleteRow(sprint))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="sprint">
+                <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="delete" Size="Radzen.ButtonSize.Small" Class="m-2" Click="@(args => DeleteRow(sprint))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+
+@code {
+    RadzenDataGrid<Sprint>? sprintsGrid;
+    IEnumerable<Sprint> sprints = new List<Sprint>();
+
+    protected override async void OnInitialized()
+    {
+        base.OnInitialized();
+
+        sprints = (await http.GetFromJsonAsync<Sprint[]>("sprint"))?.ToList() ?? new List<Sprint>();
+        StateHasChanged();
+
+    }
+    async Task EditRow(Sprint sprint)
+    {
+        if (sprintsGrid != null)
+        {
+            await sprintsGrid.EditRow(sprint);
+        }
+    }
+
+    async void OnUpdateRow(Sprint sprint)
+    {
+        if (sprint == sprintToInsert)
+        {
+            sprintToInsert = null;
+        }
+
+        _ = await http.PostAsJsonAsync($"sprint/{sprint.Id}", sprint);
+        StateHasChanged();
+    }
+
+    async Task SaveRow(Sprint sprint)
+    {
+        if (sprint == sprintToInsert)
+        {
+            sprintToInsert = null;
+        }
+        if (sprintsGrid != null)
+        {
+            await sprintsGrid.UpdateRow(sprint);
+        }
+    }
+
+    void CancelEdit(Sprint sprint)
+    {
+        if (sprint == sprintToInsert)
+        {
+            sprintToInsert = null;
+        }
+        if (sprintsGrid != null)
+        {
+            sprintsGrid.CancelEditRow(sprint);
+        }
+
+    }
+
+    async Task DeleteRow(Sprint sprint)
+    {
+        if (sprint == sprintToInsert)
+        {
+            sprintToInsert = null;
+        }
+        if (sprintsGrid != null)
+        {
+            _ = await http.DeleteAsync("sprint\\" + sprint.Id);
+            StateHasChanged();
+        }
+    }
+
+    Sprint? sprintToInsert;
+
+    async Task InsertRow()
+    {
+        sprintToInsert = new Sprint();
+        if (sprintsGrid != null)
+        {
+            await sprintsGrid.InsertRow(sprintToInsert);
+        }
+    }
+
+    async void OnCreateRow(Sprint sprint)
+    {
+        _ = await http.PostAsJsonAsync("sprint", sprint);
+        StateHasChanged();
+    }
+}
