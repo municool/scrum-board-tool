@@ -72,7 +72,7 @@ namespace scrum_board_tool.Server.Controllers
             return Ok();
         }
 
-        [HttpPost("id")]
+        [HttpDelete("id")]
         public ActionResult Delete(int id)
         {
             using (var context = _dbContextFactory.CreateDbContext())

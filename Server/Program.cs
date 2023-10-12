@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using scrum_board_tool.Server.Model;
 using System.Text.Json.Serialization;
+using Pomelo.EntityFrameworkCore.MySql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,10 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddDbContextFactory<ScrumBoardDbContext>(
         options =>
-            options.UseMySql(builder.Configuration.GetConnectionString("scrumboardDb"), new MySqlServerVersion(new Version(8, 1, 0))));
+            options.UseMySql(builder.Configuration.GetConnectionString("scrumboardDb"), new MySqlServerVersion(new Version(8, 1, 0)))
+                    .LogTo(Console.WriteLine, LogLevel.Information)
+                    .EnableSensitiveDataLogging()
+                    .EnableDetailedErrors());
 
 var app = builder.Build();
 
