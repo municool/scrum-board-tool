@@ -1,0 +1,145 @@
+﻿@page "/backlogitems"
+@layout StartLayout
+
+@using scrum_board_tool.Shared
+@inject HttpClient http
+
+<PageTitle>Mitglieder</PageTitle>
+
+<h1>Mitglieder</h1>
+
+<RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="New BacklogItem" Click="@InsertRow" Disabled=@(backlogitemToInsert != null) id="newbacklogitem" />
+<RadzenDataGrid @ref="backlogitemsGrid" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="Radzen.DataGridEditMode.Single"
+                Data="@backlogitems" TItem="BacklogItem" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+    <Columns>
+        <RadzenDataGridColumn TItem="BacklogItem" Property="Id" Title="BacklogItem Id" />
+        <RadzenDataGridColumn TItem="BacklogItem" Property="Name" Title="Name">
+            <EditTemplate Context="backlogitem">
+                <RadzenTextBox @bind-Value="backlogitem.Name" Style="width:100%; display: block" Name="Name" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="BacklogItem" Property="Description" Title="Beschreibung">
+            <EditTemplate Context="project">
+                <RadzenTextBox @bind-Value="project.Description" Style="width:100%; display: block" Name="Name" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="BacklogItem" Property="State" Title="Item">
+            <EditTemplate Context="backlogItem">
+                <RadzenDropDown @bind-Value="backlogItem.State" Data="@roles" TextProperty="StateOfItems" ValueProperty="StateOfItems" Style="width:100%; display: block;">
+                    <Template>
+                        @context
+                    </Template>
+                </RadzenDropDown>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="BacklogItem" Context="whateaver" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
+            <Template Context="backlogitem">
+                <RadzenButton Icon="edit" ButtonStyle="Radzen.ButtonStyle.Light" Class="m-1" Click="@(args => EditRow(backlogitem))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="backlogitem">
+                <RadzenButton Icon="save" Size="Radzen.ButtonSize.Small" Click="@((args) => SaveRow(backlogitem))" />
+                <RadzenButton Icon="cancel" Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Secondary" Click="@((args) => CancelEdit(backlogitem))" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="BacklogItem" Context="backlogitem" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="80px">
+            <Template Context="backlogitem">
+                <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="delete" Size="Radzen.ButtonSize.Small" Class="m-2" Click="@(args => DeleteRow(backlogitem))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+            <EditTemplate Context="backlogitem">
+                <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="delete" Size="Radzen.ButtonSize.Small" Class="m-2" Click="@(args => DeleteRow(backlogitem))">
+                </RadzenButton>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+
+@code {
+    RadzenDataGrid<BacklogItem>? backlogitemsGrid;
+    IEnumerable<BacklogItem> backlogitems = new List<BacklogItem>();
+    IEnumerable<StateOfItems> roles = ((StateOfItems[])Enum.GetValues(typeof(StateOfItems))).ToList();
+
+    protected override async void OnInitialized()
+    {
+        base.OnInitialized();
+
+        backlogitems = (await http.GetFromJsonAsync<BacklogItem[]>("backlogitem"))?.ToList() ?? new List<BacklogItem>();
+        StateHasChanged();
+
+    }
+    async Task EditRow(BacklogItem backlogitem)
+    {
+        if (backlogitemsGrid != null)
+        {
+            await backlogitemsGrid.EditRow(backlogitem);
+        }
+    }
+
+    async void OnUpdateRow(BacklogItem backlogitem)
+    {
+        if (backlogitem == backlogitemToInsert)
+        {
+            backlogitemToInsert = null;
+        }
+
+        _ = await http.PostAsJsonAsync($"backlogitem/{backlogitem.Id}", backlogitem);
+        StateHasChanged();
+    }
+
+    async Task SaveRow(BacklogItem backlogitem)
+    {
+        if (backlogitem == backlogitemToInsert)
+        {
+            backlogitemToInsert = null;
+        }
+        if (backlogitemsGrid != null)
+        {
+            await backlogitemsGrid.UpdateRow(backlogitem);
+        }
+    }
+
+    void CancelEdit(BacklogItem backlogitem)
+    {
+        if (backlogitem == backlogitemToInsert)
+        {
+            backlogitemToInsert = null;
+        }
+        if (backlogitemsGrid != null)
+        {
+            backlogitemsGrid.CancelEditRow(backlogitem);
+        }
+
+    }
+
+    async Task DeleteRow(BacklogItem backlogitem)
+    {
+        if (backlogitem == backlogitemToInsert)
+        {
+            backlogitemToInsert = null;
+        }
+        if (backlogitemsGrid != null)
+        {
+            _ = await http.DeleteAsync("backlogitem\\" + backlogitem.Id);
+            StateHasChanged();
+        }
+    }
+
+    BacklogItem? backlogitemToInsert;
+
+    async Task InsertRow()
+    {
+        backlogitemToInsert = new BacklogItem();
+        if (backlogitemsGrid != null)
+        {
+            await backlogitemsGrid.InsertRow(backlogitemToInsert);
+        }
+    }
+
+    async void OnCreateRow(BacklogItem backlogitem)
+    {
+        _ = await http.PostAsJsonAsync("backlogitem", backlogitem);
+        StateHasChanged();
+    }
+}
