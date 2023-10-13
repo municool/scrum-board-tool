@@ -21,7 +21,7 @@ namespace scrum_board_tool.Server.Model
         public DbSet<User> User { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseMySql("Server=localhost;Database=scrumboard;Uid=dbuser;Pwd=Dev_123!", new MySqlServerVersion(new Version(8, 1, 0)));
+            => optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DBCONNECTIONSTRING"), new MySqlServerVersion(new Version(8, 1, 0)));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
