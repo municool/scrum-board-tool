@@ -11,12 +11,14 @@ builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddRazorPages();
 
+Console.WriteLine(builder.Configuration.GetConnectionString("scrumboardDb"));
 builder.Services.AddDbContextFactory<ScrumBoardDbContext>(
         options =>
             options.UseMySql(builder.Configuration.GetConnectionString("scrumboardDb"), new MySqlServerVersion(new Version(8, 1, 0)))
                     .LogTo(Console.WriteLine, LogLevel.Information)
                     .EnableSensitiveDataLogging()
                     .EnableDetailedErrors());
+
 
 var app = builder.Build();
 

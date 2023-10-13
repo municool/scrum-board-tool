@@ -5,6 +5,15 @@ namespace scrum_board_tool.Server.Model
 {
     public class ScrumBoardDbContext : DbContext
     {
+        public ScrumBoardDbContext()
+        {
+        }
+
+        public ScrumBoardDbContext(DbContextOptions<ScrumBoardDbContext> options)
+            : base(options)
+        {
+        }
+
         public DbSet<Project> Project { get; set; } = null!;
         public DbSet<Sprint> Sprint { get; set; } = null!;
         public DbSet<BacklogItem> BacklogItem { get; set; } = null!;
