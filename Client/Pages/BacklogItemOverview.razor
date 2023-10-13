@@ -25,7 +25,7 @@
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="BacklogItem" Property="State" Title="Item">
             <EditTemplate Context="backlogItem">
-                <RadzenDropDown @bind-Value="backlogItem.State" Data="@roles" TextProperty="StateOfItems" ValueProperty="StateOfItems" Style="width:100%; display: block;">
+                <RadzenDropDown @bind-Value="backlogItem.State" Data="@states" TextProperty="StateOfItems" ValueProperty="StateOfItems" Style="width:100%; display: block;">
                     <Template>
                         @context
                     </Template>
@@ -59,7 +59,7 @@
 @code {
     RadzenDataGrid<BacklogItem>? backlogitemsGrid;
     IEnumerable<BacklogItem> backlogitems = new List<BacklogItem>();
-    IEnumerable<StateOfItems> roles = ((StateOfItems[])Enum.GetValues(typeof(StateOfItems))).ToList();
+    IEnumerable<StateOfItems> states = ((StateOfItems[])Enum.GetValues(typeof(StateOfItems))).ToList();
 
     protected override async void OnInitialized()
     {

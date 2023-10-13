@@ -34,6 +34,11 @@ else
 
 //app.UseHttpsRedirection();
 
+using (var db = app.Services.GetRequiredService<IDbContextFactory<ScrumBoardDbContext>>().CreateDbContext())
+{
+    db.Database.Migrate();
+}
+
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
