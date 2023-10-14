@@ -3,6 +3,7 @@
 
 @using scrum_board_tool.Shared
 @inject HttpClient http
+@inject NavigationManager NavigationManager
 
 <PageTitle>Projekte</PageTitle>
 
@@ -32,6 +33,12 @@
                 <RadzenButton Icon="save" Size="Radzen.ButtonSize.Small" Click="@((args) => SaveRow(project))" />
                 <RadzenButton Icon="cancel" Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Secondary" Click="@((args) => CancelEdit(project))" />
             </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Project" Context="whateaver" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
+            <Template Context="project">
+                <RadzenButton Icon="details" ButtonStyle="Radzen.ButtonStyle.Light" Class="m-1" Click="@(args => GoToSprints(project))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="Project" Context="project" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="80px">
             <Template Context="project">
@@ -131,5 +138,10 @@
     {
         _ = await http.PostAsJsonAsync("project", project);
         StateHasChanged();
+    }
+
+    void GoToSprints(Project project)
+    {
+        NavigationManager.NavigateTo("/sprints/" + project.Id.ToString());
     }
 }

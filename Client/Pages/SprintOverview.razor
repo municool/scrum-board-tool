@@ -1,58 +1,85 @@
-﻿@page "/sprints"
-@layout StartLayout
+﻿@page "/sprints/{CurrentProjectId:int}"
 
 @using scrum_board_tool.Shared
 @inject HttpClient http
 
-<PageTitle>Mitglieder</PageTitle>
+<RadzenHeader>
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+        <RadzenSidebarToggle Click="@(() => sidebar1Expanded = !sidebar1Expanded)" />
+        <RadzenLabel Text="scrum-board-tool" />
+    </RadzenStack>
+</RadzenHeader>
+<RadzenSidebar Style="width:auto">
+    <RadzenPanelMenu DisplayStyle="@(sidebar1Expanded?MenuItemDisplayStyle.IconAndText:MenuItemDisplayStyle.Icon)" ShowArrow=false>
+        <RadzenPanelMenuItem Text="Projekte" Icon="home" Path="" />
+        <RadzenPanelMenuItem Text="Sprints" Icon="autorenew" Path=@String.Format("/sprints/{0}", CurrentProjectId) />
+        <RadzenPanelMenuItem Text="Backlogitems" Icon="category" Path=@String.Format("/backlogitems/{0}", CurrentProjectId) />
+        <RadzenPanelMenuItem Text="Board" Icon="dashboard" Path=@String.Format("/board/{0}", CurrentProjectId) />
+        <RadzenPanelMenuItem Text="Mitglieder" Icon="account_circle" Path=@String.Format("/users/{0}", CurrentProjectId) />
+    </RadzenPanelMenu>
+</RadzenSidebar>
+<RadzenBody>
+    <div class="rz-p-4">
+        <PageTitle>Sprints</PageTitle>
 
-<h1>Mitglieder</h1>
+        <h1>Sprints</h1>
 
-<RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="New Sprint" Click="@InsertRow" Disabled=@(sprintToInsert != null) id="newsprint" />
-<RadzenDataGrid @ref="sprintsGrid" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="Radzen.DataGridEditMode.Single"
-                Data="@sprints" TItem="Sprint" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
-    <Columns>
-        <RadzenDataGridColumn TItem="Sprint" Property="Id" Title="Sprint Id" />
-        <RadzenDataGridColumn TItem="Sprint" Property="Name" Title="Name">
-            <EditTemplate Context="sprint">
-                <RadzenTextBox @bind-Value="sprint.Name" Style="width:100%; display: block" Name="Name" />
-            </EditTemplate>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Sprint" Property="StartDate" Title="Start">
-            <EditTemplate Context="sprint">
-                <RadzenDatePicker @bind-Value="sprint.StartDate" Style="width:100%; display: block" Name="Role" ShowTime="false"/>
-            </EditTemplate>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Sprint" Property="EndDate" Title="Ende">
-            <EditTemplate Context="sprint">
-                <RadzenDatePicker @bind-Value="sprint.EndDate" Style="width:100%; display: block" Name="Role" ShowTime="false" />
-            </EditTemplate>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Sprint" Context="whateaver" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
-            <Template Context="sprint">
-                <RadzenButton Icon="edit" ButtonStyle="Radzen.ButtonStyle.Light" Class="m-1" Click="@(args => EditRow(sprint))" @onclick:stopPropagation="true">
-                </RadzenButton>
-            </Template>
-            <EditTemplate Context="sprint">
-                <RadzenButton Icon="save" Size="Radzen.ButtonSize.Small" Click="@((args) => SaveRow(sprint))" />
-                <RadzenButton Icon="cancel" Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Secondary" Click="@((args) => CancelEdit(sprint))" />
-            </EditTemplate>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Sprint" Context="sprint" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="80px">
-            <Template Context="sprint">
-                <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="delete" Size="Radzen.ButtonSize.Small" Class="m-2" Click="@(args => DeleteRow(sprint))" @onclick:stopPropagation="true">
-                </RadzenButton>
-            </Template>
-            <EditTemplate Context="sprint">
-                <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="delete" Size="Radzen.ButtonSize.Small" Class="m-2" Click="@(args => DeleteRow(sprint))">
-                </RadzenButton>
-            </EditTemplate>
-        </RadzenDataGridColumn>
-    </Columns>
-</RadzenDataGrid>
+        <RadzenButton Icon="add_circle_outline" style="margin-bottom: 10px" Text="New Sprint" Click="@InsertRow" Disabled=@(sprintToInsert != null) id="newsprint" />
+        <RadzenDataGrid @ref="sprintsGrid" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="Radzen.DataGridEditMode.Single"
+                        Data="@sprints" TItem="Sprint" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+            <Columns>
+                <RadzenDataGridColumn TItem="Sprint" Property="Id" Title="Sprint Id" />
+                <RadzenDataGridColumn TItem="Sprint" Property="Name" Title="Name">
+                    <EditTemplate Context="sprint">
+                        <RadzenTextBox @bind-Value="sprint.Name" Style="width:100%; display: block" Name="Name" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Sprint" Property="StartDate" Title="Start">
+                    <EditTemplate Context="sprint">
+                        <RadzenDatePicker @bind-Value="sprint.StartDate" Style="width:100%; display: block" Name="Role" ShowTime="false" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Sprint" Property="EndDate" Title="Ende">
+                    <EditTemplate Context="sprint">
+                        <RadzenDatePicker @bind-Value="sprint.EndDate" Style="width:100%; display: block" Name="Role" ShowTime="false" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Sprint" Context="whateaver" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
+                    <Template Context="sprint">
+                        <RadzenButton Icon="edit" ButtonStyle="Radzen.ButtonStyle.Light" Class="m-1" Click="@(args => EditRow(sprint))" @onclick:stopPropagation="true">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="sprint">
+                        <RadzenButton Icon="save" Size="Radzen.ButtonSize.Small" Click="@((args) => SaveRow(sprint))" />
+                        <RadzenButton Icon="cancel" Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Secondary" Click="@((args) => CancelEdit(sprint))" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Sprint" Context="sprint" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="80px">
+                    <Template Context="sprint">
+                        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="delete" Size="Radzen.ButtonSize.Small" Class="m-2" Click="@(args => DeleteRow(sprint))" @onclick:stopPropagation="true">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="sprint">
+                        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Icon="delete" Size="Radzen.ButtonSize.Small" Class="m-2" Click="@(args => DeleteRow(sprint))">
+                        </RadzenButton>
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</RadzenBody>
+<RadzenFooter>
+
+</RadzenFooter>
+
+
 
 
 @code {
+    [Parameter]
+    public int CurrentProjectId { get; set; }
+    bool sidebar1Expanded = true;
+
     RadzenDataGrid<Sprint>? sprintsGrid;
     IEnumerable<Sprint> sprints = new List<Sprint>();
 
