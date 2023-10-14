@@ -36,8 +36,11 @@
                     </EditTemplate>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="BacklogItem" Property="Description" Title="Beschreibung">
-                    <EditTemplate Context="project">
-                        <RadzenTextBox @bind-Value="project.Description" Style="width:100%; display: block" Name="Name" />
+                    <Template Context="bItem">
+                        <RadzenHtmlEditor @bind-Value="bItem.Description" style="height: 500px;" UploadUrl="upload/image" Disabled/>
+                    </Template>
+                    <EditTemplate Context="bitem">
+                        <RadzenHtmlEditor @bind-Value="bitem.Description" style="height: 500px;" UploadUrl="upload/image" />
                     </EditTemplate>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="BacklogItem" Property="State" Title="Item">

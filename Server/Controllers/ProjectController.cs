@@ -25,7 +25,7 @@ namespace scrum_board_tool.Server.Controllers
             }
         }
 
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public Project? GetById(int id)
         {
             using (var context = _dbContextFactory.CreateDbContext())
@@ -45,7 +45,7 @@ namespace scrum_board_tool.Server.Controllers
             return Ok();
         }
 
-        [HttpPost("id")]
+        [HttpPost("{id}")]
         public ActionResult Edit(int id, [FromBody] Project project)
         {
             using (var context = _dbContextFactory.CreateDbContext())
@@ -68,7 +68,7 @@ namespace scrum_board_tool.Server.Controllers
             return Ok();
         }
 
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
             using (var context = _dbContextFactory.CreateDbContext())

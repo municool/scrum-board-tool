@@ -28,17 +28,13 @@
             <Template Context="project">
                 <RadzenButton Icon="edit" ButtonStyle="Radzen.ButtonStyle.Light" Class="m-1" Click="@(args => EditRow(project))" @onclick:stopPropagation="true">
                 </RadzenButton>
+                <RadzenButton Icon="details" Size="Radzen.ButtonSize.Medium" ButtonStyle="Radzen.ButtonStyle.Light" Class="m-1" Click="@(args => GoToSprints(project))" @onclick:stopPropagation="true">
+                </RadzenButton>
             </Template>
             <EditTemplate Context="project">
                 <RadzenButton Icon="save" Size="Radzen.ButtonSize.Small" Click="@((args) => SaveRow(project))" />
                 <RadzenButton Icon="cancel" Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Secondary" Click="@((args) => CancelEdit(project))" />
             </EditTemplate>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Project" Context="whateaver" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
-            <Template Context="project">
-                <RadzenButton Icon="details" ButtonStyle="Radzen.ButtonStyle.Light" Class="m-1" Click="@(args => GoToSprints(project))" @onclick:stopPropagation="true">
-                </RadzenButton>
-            </Template>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="Project" Context="project" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="80px">
             <Template Context="project">
@@ -58,12 +54,11 @@
     RadzenDataGrid<Project>? projectsGrid;
     IEnumerable<Project> projects = new List<Project>();
 
-    protected override async void OnInitialized()
+    protected override void OnInitialized()
     {
         base.OnInitialized();
 
-        projects = (await http.GetFromJsonAsync<Project[]>("project"))?.ToList() ?? new List<Project>();
-        StateHasChanged();
+        LoadProjects();
 
     }
     async Task EditRow(Project project)
@@ -82,7 +77,7 @@
         }
 
         _ = await http.PostAsJsonAsync($"project/{project.Id}", project);
-        StateHasChanged();
+        LoadProjects();
     }
 
     async Task SaveRow(Project project)
@@ -106,6 +101,7 @@
         if (projectsGrid != null)
         {
             projectsGrid.CancelEditRow(project);
+            LoadProjects();
         }
 
     }
@@ -118,8 +114,8 @@
         }
         if (projectsGrid != null)
         {
-            _ = await http.DeleteAsync("project\\" + project.Id);
-            StateHasChanged();
+            _ = await http.DeleteAsync("project/" + project.Id);
+            LoadProjects();
         }
     }
 
@@ -137,11 +133,17 @@
     async void OnCreateRow(Project project)
     {
         _ = await http.PostAsJsonAsync("project", project);
-        StateHasChanged();
+        LoadProjects();
     }
 
     void GoToSprints(Project project)
     {
         NavigationManager.NavigateTo("/sprints/" + project.Id.ToString());
+    }
+
+    async void LoadProjects()
+    {
+        projects = (await http.GetFromJsonAsync<Project[]>("project"))?.ToList() ?? new List<Project>();
+        StateHasChanged();
     }
 }
