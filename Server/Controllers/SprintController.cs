@@ -26,7 +26,7 @@ namespace scrum_board_tool.Server.Controllers
             }
         }
 
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public Sprint? GetById(int id)
         {
             using (var context = _dbContextFactory.CreateDbContext())
@@ -35,19 +35,38 @@ namespace scrum_board_tool.Server.Controllers
             }
         }
 
-        [HttpPost]
-        public ActionResult Create([FromBody] Sprint project)
+        [HttpGet("GetByProjectId/{projectId}")]
+        public IEnumerable<Sprint> GetByProjectId(int projectId)
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                context.Sprint.Add(project);
+                return context.Sprint.Include(s => s.Project).Where(p => p.Project.Id == projectId).ToList();
+            }
+        }
+
+
+        [HttpPost]
+        public ActionResult Create([FromBody] Sprint sprint)
+        {
+            using (var context = _dbContextFactory.CreateDbContext())
+            {
+                var currentProject = context.Project.Include(p => p.Sprints).FirstOrDefault(p => p.Id == sprint.Project.Id);
+
+                if (currentProject == null)
+                {
+                    return NotFound();
+                }
+
+                currentProject.Sprints.Add(sprint);
+                context.Project.Update(currentProject);  
+                
                 context.SaveChanges();
             }
             return Ok();
         }
 
-        [HttpPost("id")]
-        public ActionResult Edit(int id, [FromBody] Sprint project)
+        [HttpPost("{id}")]
+        public ActionResult Edit(int id, [FromBody] Sprint sprint)
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
@@ -55,9 +74,9 @@ namespace scrum_board_tool.Server.Controllers
 
                 if (oldSprint != null)
                 {
-                    oldSprint.Name = project.Name;
-                    oldSprint.StartDate = project.StartDate;
-                    oldSprint.EndDate = project.EndDate;
+                    oldSprint.Name = sprint.Name;
+                    oldSprint.StartDate = sprint.StartDate;
+                    oldSprint.EndDate = sprint.EndDate;
 
                     context.Sprint.Update(oldSprint);
                     context.SaveChanges();
@@ -70,16 +89,16 @@ namespace scrum_board_tool.Server.Controllers
             return Ok();
         }
 
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                var project = context.Sprint.FirstOrDefault(p => p.Id == id);
+                var sprint = context.Sprint.FirstOrDefault(p => p.Id == id);
 
-                if (project != null)
+                if (sprint != null)
                 {
-                    context.Sprint.Remove(project);
+                    context.Sprint.Remove(sprint);
                     context.SaveChanges();
                 }
                 else

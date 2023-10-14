@@ -2,6 +2,11 @@
 {
     public class Sprint
     {
+        public Sprint()
+        {
+            BacklogItems = new HashSet<BacklogItem>();
+        }
+
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }

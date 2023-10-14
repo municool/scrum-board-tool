@@ -35,11 +35,17 @@
                     </EditTemplate>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Sprint" Property="StartDate" Title="Start">
+                    <Template Context="sprint">
+                        @sprint.StartDate.ToString("d.MM.yyyy")
+                    </Template>
                     <EditTemplate Context="sprint">
                         <RadzenDatePicker @bind-Value="sprint.StartDate" Style="width:100%; display: block" Name="Role" ShowTime="false" />
                     </EditTemplate>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Sprint" Property="EndDate" Title="Ende">
+                    <Template Context="sprint">
+                        @sprint.EndDate.ToString("d.MM.yyyy")
+                    </Template>
                     <EditTemplate Context="sprint">
                         <RadzenDatePicker @bind-Value="sprint.EndDate" Style="width:100%; display: block" Name="Role" ShowTime="false" />
                     </EditTemplate>
@@ -82,13 +88,13 @@
 
     RadzenDataGrid<Sprint>? sprintsGrid;
     IEnumerable<Sprint> sprints = new List<Sprint>();
+    Project? CurrentProject;
 
     protected override async void OnInitialized()
     {
         base.OnInitialized();
-
-        sprints = (await http.GetFromJsonAsync<Sprint[]>("sprint"))?.ToList() ?? new List<Sprint>();
-        StateHasChanged();
+        CurrentProject = await http.GetFromJsonAsync<Project>($"project/{CurrentProjectId}");
+        LoadSprints();
 
     }
     async Task EditRow(Sprint sprint)
@@ -107,7 +113,7 @@
         }
 
         _ = await http.PostAsJsonAsync($"sprint/{sprint.Id}", sprint);
-        StateHasChanged();
+        LoadSprints();
     }
 
     async Task SaveRow(Sprint sprint)
@@ -131,6 +137,7 @@
         if (sprintsGrid != null)
         {
             sprintsGrid.CancelEditRow(sprint);
+            LoadSprints();
         }
 
     }
@@ -143,8 +150,8 @@
         }
         if (sprintsGrid != null)
         {
-            _ = await http.DeleteAsync("sprint\\" + sprint.Id);
-            StateHasChanged();
+            _ = await http.DeleteAsync("sprint/" + sprint.Id);
+            LoadSprints();
         }
     }
 
@@ -152,7 +159,7 @@
 
     async Task InsertRow()
     {
-        sprintToInsert = new Sprint();
+        sprintToInsert = new Sprint(){Project = CurrentProject ?? new Project()};
         if (sprintsGrid != null)
         {
             await sprintsGrid.InsertRow(sprintToInsert);
@@ -162,6 +169,12 @@
     async void OnCreateRow(Sprint sprint)
     {
         _ = await http.PostAsJsonAsync("sprint", sprint);
+        LoadSprints();
+    }
+
+    async void LoadSprints()
+    {
+        sprints = (await http.GetFromJsonAsync<Sprint[]>($"sprint/GetByProjectId/{CurrentProjectId}"))?.ToList() ?? new List<Sprint>();
         StateHasChanged();
     }
 }
