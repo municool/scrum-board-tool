@@ -2,6 +2,7 @@
 
 @using scrum_board_tool.Shared
 @inject HttpClient http
+@inject DialogService DialogService
 
 <RadzenHeader>
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
@@ -36,7 +37,11 @@
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="User" Property="Role" Title="Rolle">
                     <EditTemplate Context="user">
-                        <RadzenTextBox @bind-Value="user.Role" Style="width:100%; display: block" Name="Role" />
+                        <RadzenDropDown @bind-Value="user.Role" Data="@roles" TextProperty="" ValueProperty="" Style="width:100%; display: block;">
+                            <Template>
+                                @Enum.GetName(typeof(Role), context)
+                            </Template>
+                        </RadzenDropDown>
                     </EditTemplate>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="User" Context="whateaver" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
@@ -73,14 +78,14 @@
 
     RadzenDataGrid<User>? usersGrid;
     IEnumerable<User> users = new List<User>();
+    IEnumerable<Role> roles = ((Role[])Enum.GetValues(typeof(Role))).ToList();
+    Project? CurrentProject;
 
     protected override async void OnInitialized()
     {
         base.OnInitialized();
-
-        users = (await http.GetFromJsonAsync<User[]>("user"))?.ToList() ?? new List<User>();
-        StateHasChanged();
-
+        CurrentProject = await http.GetFromJsonAsync<Project>($"project/{CurrentProjectId}");
+        LoadUsers();
     }
     async Task EditRow(User user)
     {
@@ -98,7 +103,7 @@
         }
 
         _ = await http.PostAsJsonAsync($"user/{user.Id}", user);
-        StateHasChanged();
+        LoadUsers();
     }
 
     async Task SaveRow(User user)
@@ -122,6 +127,7 @@
         if (usersGrid != null)
         {
             usersGrid.CancelEditRow(user);
+            LoadUsers();
         }
 
     }
@@ -134,8 +140,8 @@
         }
         if (usersGrid != null)
         {
-            _ = await http.DeleteAsync("user\\" + user.Id);
-            StateHasChanged();
+            _ = await http.DeleteAsync("user/" + user.Id);
+            LoadUsers();
         }
     }
 
@@ -143,7 +149,7 @@
 
     async Task InsertRow()
     {
-        userToInsert = new User();
+        userToInsert = new User(){Project = CurrentProject ?? new Project()};
         if (usersGrid != null)
         {
             await usersGrid.InsertRow(userToInsert);
@@ -153,6 +159,12 @@
     async void OnCreateRow(User user)
     {
         _ = await http.PostAsJsonAsync("user", user);
+        LoadUsers();
+    }
+
+    async void LoadUsers()
+    {
+        users = (await http.GetFromJsonAsync<User[]>($"user/GetByProjectId/{CurrentProjectId}"))?.ToList() ?? new List<User>();
         StateHasChanged();
     }
 }

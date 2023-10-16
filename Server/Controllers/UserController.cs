@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using scrum_board_tool.Server.Model;
 using scrum_board_tool.Shared;
 
@@ -26,7 +27,7 @@ namespace scrum_board_tool.Server.Controllers
             }
         }
 
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public User? GetById(int id)
         {
             using (var context = _dbContextFactory.CreateDbContext())
@@ -35,19 +36,36 @@ namespace scrum_board_tool.Server.Controllers
             }
         }
 
-        [HttpPost]
-        public ActionResult Create([FromBody] User project)
+        [HttpGet("GetByProjectId/{projectId}")]
+        public IEnumerable<User> GetByProjectId(int projectId)
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                context.User.Add(project);
+                var users = context.User.Where(u => u.Project.Id == projectId).ToList();
+                return users;
+            }
+        }
+
+        [HttpPost]
+        public ActionResult Create([FromBody] User user)
+        {
+            using (var context = _dbContextFactory.CreateDbContext())
+            {
+                var project = context.Project.FirstOrDefault(p => p.Id == user.Project.Id);
+                if(project == null)
+                {
+                    return NotFound();
+                }
+
+                project.Users.Add(user);
+                context.Project.Update(project);
                 context.SaveChanges();
             }
             return Ok();
         }
 
-        [HttpPost("id")]
-        public ActionResult Edit(int id, [FromBody] User project)
+        [HttpPost("{id}")]
+        public ActionResult Edit(int id, [FromBody] User user)
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
@@ -55,8 +73,8 @@ namespace scrum_board_tool.Server.Controllers
 
                 if (oldUser != null)
                 {
-                    oldUser.Name = project.Name;
-                    oldUser.Role = project.Role;
+                    oldUser.Name = user.Name;
+                    oldUser.Role = user.Role;
 
                     context.User.Update(oldUser);
                     context.SaveChanges();
@@ -69,16 +87,16 @@ namespace scrum_board_tool.Server.Controllers
             return Ok();
         }
 
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                var project = context.User.FirstOrDefault(p => p.Id == id);
+                var user = context.User.FirstOrDefault(p => p.Id == id);
 
-                if (project != null)
+                if (user != null)
                 {
-                    context.User.Remove(project);
+                    context.User.Remove(user);
                     context.SaveChanges();
                 }
                 else
