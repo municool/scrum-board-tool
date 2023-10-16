@@ -2,6 +2,7 @@
 
 @using scrum_board_tool.Shared
 @inject HttpClient http
+@inject DialogService DialogService
 
 
 <RadzenHeader>
@@ -43,15 +44,24 @@
                         <RadzenHtmlEditor @bind-Value="bitem.Description" style="height: 500px;" UploadUrl="upload/image" />
                     </EditTemplate>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="BacklogItem" Property="State" Title="Item">
+                <RadzenDataGridColumn TItem="BacklogItem" Property="State" Title="Status">
                     <EditTemplate Context="backlogItem">
-                        <RadzenDropDown @bind-Value="backlogItem.State" Data="@states" TextProperty="StateOfItems" ValueProperty="StateOfItems" Style="width:100%; display: block;">
+                        <RadzenDropDown @bind-Value="backlogItem.State" Data="@states" TextProperty="" ValueProperty="" Style="width:100%; display: block;">
                             <Template>
-                                @context
+                                @Enum.GetName(typeof(StateOfItems), context)
                             </Template>
                         </RadzenDropDown>
                     </EditTemplate>
                 </RadzenDataGridColumn>
+                 <RadzenDataGridColumn TItem="BacklogItem" Property="Sprint.Name" Title="Sprint">
+                     <EditTemplate Context="backlogItem">
+                         <RadzenDropDown @bind-Value="backlogItem.Sprint" Data="@sprints" TextProperty="Name" ValueProperty="" Style="width:100%; display: block;">
+                             <Template>
+                                 @context.Name
+                             </Template>
+                         </RadzenDropDown>
+                     </EditTemplate>
+                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="BacklogItem" Context="whateaver" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
                     <Template Context="backlogitem">
                         <RadzenButton Icon="edit" ButtonStyle="Radzen.ButtonStyle.Light" Class="m-1" Click="@(args => EditRow(backlogitem))" @onclick:stopPropagation="true">
@@ -80,22 +90,21 @@
 
 </RadzenFooter>
 
-@code {
+ @code {
     [Parameter]
     public int CurrentProjectId { get; set; }
     bool sidebar1Expanded = true;
 
     RadzenDataGrid<BacklogItem>? backlogitemsGrid;
     IEnumerable<BacklogItem> backlogitems = new List<BacklogItem>();
+    IEnumerable<Sprint> sprints = new List<Sprint>();
     IEnumerable<StateOfItems> states = ((StateOfItems[])Enum.GetValues(typeof(StateOfItems))).ToList();
 
     protected override async void OnInitialized()
     {
         base.OnInitialized();
-
-        backlogitems = (await http.GetFromJsonAsync<BacklogItem[]>("backlogitem"))?.ToList() ?? new List<BacklogItem>();
-        StateHasChanged();
-
+        sprints = (await http.GetFromJsonAsync<Sprint[]>($"sprint/GetByProjectId/{CurrentProjectId}"))?.ToList() ?? new List<Sprint>();
+        LoadBacklogItems();
     }
     async Task EditRow(BacklogItem backlogitem)
     {
@@ -113,7 +122,7 @@
         }
 
         _ = await http.PostAsJsonAsync($"backlogitem/{backlogitem.Id}", backlogitem);
-        StateHasChanged();
+        LoadBacklogItems();
     }
 
     async Task SaveRow(BacklogItem backlogitem)
@@ -149,8 +158,8 @@
         }
         if (backlogitemsGrid != null)
         {
-            _ = await http.DeleteAsync("backlogitem\\" + backlogitem.Id);
-            StateHasChanged();
+            _ = await http.DeleteAsync("backlog/" + backlogitem.Id);
+            LoadBacklogItems();
         }
     }
 
@@ -167,7 +176,13 @@
 
     async void OnCreateRow(BacklogItem backlogitem)
     {
-        _ = await http.PostAsJsonAsync("backlogitem", backlogitem);
+        _ = await http.PostAsJsonAsync("backlog", backlogitem);
+        LoadBacklogItems();
+    }
+
+    async void LoadBacklogItems()
+    {
+        backlogitems = (await http.GetFromJsonAsync<BacklogItem[]>($"backlog/GetByProjectId/{CurrentProjectId}"))?.ToList() ?? new List<BacklogItem>();
         StateHasChanged();
     }
 }

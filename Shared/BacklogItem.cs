@@ -2,6 +2,11 @@
 {
     public class BacklogItem
     {
+        public BacklogItem() 
+        { 
+            Tasks = new HashSet<WorkTask>();
+        }
+
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;

@@ -26,7 +26,7 @@ namespace scrum_board_tool.Server.Controllers
             }
         }
 
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public BacklogItem? GetById(int id)
         {
             using (var context = _dbContextFactory.CreateDbContext())
@@ -35,19 +35,42 @@ namespace scrum_board_tool.Server.Controllers
             }
         }
 
-        [HttpPost]
-        public ActionResult Create([FromBody] BacklogItem project)
+        [HttpGet("GetByProjectId/{projectId}")]
+        public IEnumerable<BacklogItem> GetByProjectId(int projectId)
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                context.BacklogItem.Add(project);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                var bItems = context.BacklogItem.Where(b => b.Sprint.Project.Id == projectId).Include(b => b.Sprint).ToList();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                return bItems;
+            }
+        }
+
+
+        [HttpPost]
+        public ActionResult Create([FromBody] BacklogItem bItem)
+        {
+            using (var context = _dbContextFactory.CreateDbContext())
+            {
+                var currentSprintId = bItem.Sprint?.Id ?? 0;
+                var sprint = context.Sprint.Include(p => p.BacklogItems).FirstOrDefault(s => s.Id == currentSprintId);
+
+                if (sprint == null)
+                {
+                    return NotFound();
+                }
+
+                sprint.BacklogItems.Add(bItem);
+
+                context.Sprint.Update(sprint);
                 context.SaveChanges();
             }
             return Ok();
         }
 
-        [HttpPost("id")]
-        public ActionResult Edit(int id, [FromBody] BacklogItem project)
+        [HttpPost("{id}")]
+        public ActionResult Edit(int id, [FromBody] BacklogItem bItem)
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
@@ -55,11 +78,11 @@ namespace scrum_board_tool.Server.Controllers
 
                 if (oldBacklogItem != null)
                 {
-                    oldBacklogItem.Name = project.Name;
-                    oldBacklogItem.Description = project.Description;
-                    oldBacklogItem.State = project.State;
-                    oldBacklogItem.Effort = project.Effort;
-                    oldBacklogItem.Sprint = project.Sprint;
+                    oldBacklogItem.Name = bItem.Name;
+                    oldBacklogItem.Description = bItem.Description;
+                    oldBacklogItem.State = bItem.State;
+                    oldBacklogItem.Effort = bItem.Effort;
+                    oldBacklogItem.Sprint = bItem.Sprint;
 
                     context.BacklogItem.Update(oldBacklogItem);
                     context.SaveChanges();
@@ -72,16 +95,16 @@ namespace scrum_board_tool.Server.Controllers
             return Ok();
         }
 
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                var project = context.BacklogItem.FirstOrDefault(p => p.Id == id);
+                var bItem = context.BacklogItem.FirstOrDefault(p => p.Id == id);
 
-                if (project != null)
+                if (bItem != null)
                 {
-                    context.BacklogItem.Remove(project);
+                    context.BacklogItem.Remove(bItem);
                     context.SaveChanges();
                 }
                 else
