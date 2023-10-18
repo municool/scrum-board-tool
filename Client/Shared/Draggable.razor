@@ -1,7 +1,7 @@
 ﻿@typeparam T
 @using scrum_board_tool.Client.Data
 @inject DragAndDropService DragAndDropService
-<div draggable="true" @ondragstart="@OnDragStart">
+<div draggable="true" @ondragstart="@OnDragStart" class="draggable">
     @ChildContent
 </div>
 

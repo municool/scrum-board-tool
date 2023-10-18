@@ -24,36 +24,42 @@
 </RadzenSidebar>
 <RadzenBody>
     <div class="rz-p-4">
-        @foreach(var bItem in CurrentSprint.BacklogItems)
+        @foreach (var bItem in CurrentSprint.BacklogItems)
         {
             <div class="backlog-item">
                 <div class="backlog-item-info">
                     <p>Name: @bItem.Name</p>
                     <p>Effort: @bItem.Effort</p>
                 </div>
-                 <div class="backlog-item-status backlog-todo">
-                    <h4>Todo</h4>
-                    @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.ToDo))
-                    {
-                        <WorkTaskView Data="item" />
-                    }
-                    <div class="add-task-button">
-                        <button @onclick="(() => CreateNewTask(bItem))">+</button>
-                    </div>
+                <div class="backlog-item-status backlog-todo">
+                    <DropTarget T="WorkTask" Drop="@OnDrop" Zone="todo">
+                        <h4>Todo</h4>
+                        @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.ToDo))
+                        {
+                            <WorkTaskView Data="item" Parent="bItem" />
+                        }
+                        <div class="add-task-button">
+                            <button @onclick="(() => CreateNewTask(bItem))">+</button>
+                        </div>
+                    </DropTarget>
                 </div>
                 <div class="backlog-item-status backlog-in-progress">
-                    <h4>InProgress</h4>
-                    @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.InProgress))
-                    {
-                        <WorkTaskView Data="item" />
-                    }
+                    <DropTarget T="WorkTask" Drop="@OnDrop" Zone="inprogress">
+                        <h4>InProgress</h4>
+                        @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.InProgress))
+                        {
+                            <WorkTaskView Data="item" Parent="bItem" />
+                        }
+                    </DropTarget>
                 </div>
                 <div class="backlog-item-status backlog-done">
-                    <h4>Done</h4>
-                    @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.Done))
-                    {
-                        <WorkTaskView Data="item" />
-                    }
+                    <DropTarget T="WorkTask" Drop="@OnDrop" Zone="done">
+                        <h4>Done</h4>
+                        @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.Done))
+                        {
+                            <WorkTaskView Data="item" Parent="bItem" />
+                        }
+                    </DropTarget>
                 </div>
             </div>
         }
@@ -86,6 +92,8 @@
         if (CurrentSprintId > 0)
         {
             CurrentSprint = await http.GetFromJsonAsync<Sprint>($"sprint/{CurrentSprintId}") ?? new Sprint();
+            CurrentSprintId = CurrentSprint.Id;
+            Console.WriteLine(CurrentSprint);
         }
         else
         {
@@ -96,32 +104,19 @@
 
     async void CreateNewTask(BacklogItem bItem)
     {
+        bItem.Tasks = new HashSet<WorkTask>();
         var newTask = new WorkTask()
-        {
-            BacklogItem = bItem
-        };
+            {
+                BacklogItem = bItem
+            };
         _ = await http.PostAsJsonAsync("worktask", newTask);
         LoadSprint();
     }
 
-    int draggedTaskId;
-
-    void startDrag(int taskId)
+    void OnDrop(WorkTask task)
     {
-        draggedTaskId = taskId;
-    }
-
-    void allowDrop(DragEventArgs e)
-    {
-    }
-
-    void drop(DragEventArgs e, string zone)
-    {
-        var task = CurrentSprint.BacklogItems.FirstOrDefault(b => b.Id == draggedTaskId);
-        if (task != null)
-        {
-            // Hier können Sie die Logik zum Verschieben des Tasks in die ausgewählte Zone implementieren.
-            // Zum Beispiel: Ändern Sie den Status des Tasks in Ihrer Datenquelle.
-        }
+        
+        // Important: Invoke StateHasChanged() to update the page
+        StateHasChanged();
     }
 }

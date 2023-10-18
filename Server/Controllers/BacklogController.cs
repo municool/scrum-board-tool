@@ -40,13 +40,10 @@ namespace scrum_board_tool.Server.Controllers
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                var bItems = context.BacklogItem.Where(b => b.Sprint.Project.Id == projectId).Include(b => b.Sprint).ToList();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                var bItems = context.BacklogItem.Where(b =>b.Sprint != null && b.Sprint.Project.Id == projectId).Include(b => b.Sprint).Include(b => b.Tasks).ToList();
                 return bItems;
             }
         }
-
 
         [HttpPost]
         public ActionResult Create([FromBody] BacklogItem bItem)
