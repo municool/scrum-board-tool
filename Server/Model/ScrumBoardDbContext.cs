@@ -47,7 +47,7 @@ namespace scrum_board_tool.Server.Model
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired();
                 entity.Property(e => e.State).HasConversion<string>();
-                entity.HasOne(e => e.Sprint).WithMany(e => e.BacklogItems);
+                entity.HasOne(e => e.Sprint).WithMany(e => e.BacklogItems).IsRequired(false);
             });
 
             modelBuilder.Entity<WorkTask>(entity =>
@@ -56,7 +56,7 @@ namespace scrum_board_tool.Server.Model
                 entity.Property(e => e.Name).IsRequired();
                 entity.HasOne(e => e.BacklogItem).WithMany(e => e.Tasks);
                 entity.Property(e => e.State).HasConversion<string>();
-                entity.HasOne(e => e.User).WithMany(e => e.Tasks);
+                entity.HasOne(e => e.User).WithMany(e => e.Tasks).IsRequired(false);
             });
 
             modelBuilder.Entity<User>(entity =>

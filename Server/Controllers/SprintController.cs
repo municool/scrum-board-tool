@@ -44,6 +44,24 @@ namespace scrum_board_tool.Server.Controllers
             }
         }
 
+        [HttpGet("GetCurrentSprint")]
+        public Sprint? GetCurrentSprint()
+        {
+            using (var context = _dbContextFactory.CreateDbContext())
+            {
+                var currentDate = DateTime.Now;
+                var currentS = context.Sprint.Include(s => s.BacklogItems).FirstOrDefault(s => s.StartDate <= currentDate && s.EndDate >= currentDate);
+                
+                if(currentS == null)
+                {
+                    var nextPastSprint = context.Sprint.Where(s => s.EndDate < currentDate)
+                                   .OrderByDescending(s => s.EndDate).Include(s => s.BacklogItems)
+                                   .FirstOrDefault();
+                }
+
+                return currentS;
+            }
+        }
 
         [HttpPost]
         public ActionResult Create([FromBody] Sprint sprint)

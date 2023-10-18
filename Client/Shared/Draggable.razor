@@ -1,0 +1,23 @@
+﻿@typeparam T
+@using scrum_board_tool.Client.Data
+@inject DragAndDropService DragAndDropService
+<div draggable="true" @ondragstart="@OnDragStart">
+    @ChildContent
+</div>
+
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string Zone { get; set; } = string.Empty;
+
+    [Parameter]
+    public T Data { get; set; }
+
+    void OnDragStart()
+    {
+        DragAndDropService.StartDrag(Data, Zone);
+    }
+}

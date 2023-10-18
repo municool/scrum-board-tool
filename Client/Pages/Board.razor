@@ -1,0 +1,127 @@
+﻿@page "/board/{CurrentProjectId:int}/{CurrentSprintId:int}"
+@page "/board/{CurrentProjectId:int}"
+
+@using scrum_board_tool.Shared
+@inject HttpClient http
+@inject DialogService DialogService
+
+<PageTitle>Board</PageTitle>
+
+<RadzenHeader>
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+        <RadzenSidebarToggle Click="@(() => sidebar1Expanded = !sidebar1Expanded)" />
+        <RadzenLabel Text="scrum-board-tool" />
+    </RadzenStack>
+</RadzenHeader>
+<RadzenSidebar Style="width:auto">
+    <RadzenPanelMenu DisplayStyle="@(sidebar1Expanded?MenuItemDisplayStyle.IconAndText:MenuItemDisplayStyle.Icon)" ShowArrow=false>
+        <RadzenPanelMenuItem Text="Projekte" Icon="home" Path="" />
+        <RadzenPanelMenuItem Text="Sprints" Icon="autorenew" Path=@String.Format("/sprints/{0}", CurrentProjectId) />
+        <RadzenPanelMenuItem Text="Backlogitems" Icon="category" Path=@String.Format("/backlogitems/{0}", CurrentProjectId) />
+        <RadzenPanelMenuItem Text="Board" Icon="dashboard" Path=@String.Format("/board/{0}", CurrentProjectId) />
+        <RadzenPanelMenuItem Text="Mitglieder" Icon="account_circle" Path=@String.Format("/users/{0}", CurrentProjectId) />
+    </RadzenPanelMenu>
+</RadzenSidebar>
+<RadzenBody>
+    <div class="rz-p-4">
+        @foreach(var bItem in CurrentSprint.BacklogItems)
+        {
+            <div class="backlog-item">
+                <div class="backlog-item-info">
+                    <p>Name: @bItem.Name</p>
+                    <p>Effort: @bItem.Effort</p>
+                </div>
+                 <div class="backlog-item-status backlog-todo">
+                    <h4>Todo</h4>
+                    @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.ToDo))
+                    {
+                        <WorkTaskView Data="item" />
+                    }
+                    <div class="add-task-button">
+                        <button @onclick="(() => CreateNewTask(bItem))">+</button>
+                    </div>
+                </div>
+                <div class="backlog-item-status backlog-in-progress">
+                    <h4>InProgress</h4>
+                    @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.InProgress))
+                    {
+                        <WorkTaskView Data="item" />
+                    }
+                </div>
+                <div class="backlog-item-status backlog-done">
+                    <h4>Done</h4>
+                    @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.Done))
+                    {
+                        <WorkTaskView Data="item" />
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</RadzenBody>
+<RadzenFooter>
+
+</RadzenFooter>
+
+@code {
+    [Parameter]
+    public int CurrentProjectId { get; set; }
+    [Parameter]
+    public int CurrentSprintId { get; set; }
+
+
+    Project? CurrentProject;
+    Sprint CurrentSprint = new Sprint();
+    bool sidebar1Expanded = true;
+
+    protected override async void OnInitialized()
+    {
+        base.OnInitialized();
+        CurrentProject = await http.GetFromJsonAsync<Project>($"project/{CurrentProjectId}");
+        LoadSprint();
+    }
+
+    async void LoadSprint()
+    {
+        if (CurrentSprintId > 0)
+        {
+            CurrentSprint = await http.GetFromJsonAsync<Sprint>($"sprint/{CurrentSprintId}") ?? new Sprint();
+        }
+        else
+        {
+            CurrentSprint = await http.GetFromJsonAsync<Sprint>($"sprint/GetCurrentSprint") ?? new Sprint();
+        }
+        StateHasChanged();
+    }
+
+    async void CreateNewTask(BacklogItem bItem)
+    {
+        var newTask = new WorkTask()
+        {
+            BacklogItem = bItem
+        };
+        _ = await http.PostAsJsonAsync("worktask", newTask);
+        LoadSprint();
+    }
+
+    int draggedTaskId;
+
+    void startDrag(int taskId)
+    {
+        draggedTaskId = taskId;
+    }
+
+    void allowDrop(DragEventArgs e)
+    {
+    }
+
+    void drop(DragEventArgs e, string zone)
+    {
+        var task = CurrentSprint.BacklogItems.FirstOrDefault(b => b.Id == draggedTaskId);
+        if (task != null)
+        {
+            // Hier können Sie die Logik zum Verschieben des Tasks in die ausgewählte Zone implementieren.
+            // Zum Beispiel: Ändern Sie den Status des Tasks in Ihrer Datenquelle.
+        }
+    }
+}

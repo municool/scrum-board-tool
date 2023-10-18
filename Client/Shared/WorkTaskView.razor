@@ -1,0 +1,28 @@
+﻿@using scrum_board_tool.Shared;
+@inject DialogService DialogService
+@inject HttpClient http
+
+<Draggable class="task-box" Data="Data">
+    <RadzenTextBox @bind-Value="Data.Name" Style="width:100%; display: block" Name="Name" onblur="@(() => UpdateTask())" />
+     <RadzenNumeric @bind-Value=@Data.TimeRemaining onblur="@(() => UpdateTask())" />
+     <RadzenDropDown @bind-Value="Data.State" Data="@states" TextProperty="" ValueProperty="" Style="width:100%; display: block;" onblur="@(() => UpdateTask())">
+         <Template>
+             @Enum.GetName(typeof(StateOfItems), context)
+         </Template>
+     </RadzenDropDown>
+ </Draggable>
+
+ @code {
+    [Parameter]
+    public WorkTask Data { get; set; }
+
+    IEnumerable<StateOfItems> states = ((StateOfItems[])Enum.GetValues(typeof(StateOfItems))).ToList();
+
+    async void UpdateTask()
+    {
+        _ = await http.PostAsJsonAsync($"worktask/{Data.Id}", Data);
+        Data = await http.GetFromJsonAsync<WorkTask>($"worktask/{Data.Id}");
+
+        StateHasChanged();
+    }
+}
