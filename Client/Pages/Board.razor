@@ -31,36 +31,30 @@
                     <p>Name: @bItem.Name</p>
                     <p>Effort: @bItem.Effort</p>
                 </div>
-                <div class="backlog-item-status backlog-todo">
-                    <DropTarget T="WorkTask" Drop="@OnDrop" Zone="todo">
-                        <h4>Todo</h4>
-                        @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.ToDo))
-                        {
-                            <WorkTaskView Data="item" Parent="bItem" />
-                        }
-                        <div class="add-task-button">
-                            <button @onclick="(() => CreateNewTask(bItem))">+</button>
-                        </div>
-                    </DropTarget>
-                </div>
-                <div class="backlog-item-status backlog-in-progress">
-                    <DropTarget T="WorkTask" Drop="@OnDrop" Zone="inprogress">
-                        <h4>InProgress</h4>
-                        @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.InProgress))
-                        {
-                            <WorkTaskView Data="item" Parent="bItem" />
-                        }
-                    </DropTarget>
-                </div>
-                <div class="backlog-item-status backlog-done">
-                    <DropTarget T="WorkTask" Drop="@OnDrop" Zone="done">
-                        <h4>Done</h4>
-                        @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.Done))
-                        {
-                            <WorkTaskView Data="item" Parent="bItem" />
-                        }
-                    </DropTarget>
-                </div>
+                <DropTarget T="WorkTask" Drop="@OnDrop" Zone="todo" class="backlog-item-status backlog-todo">
+                    <h4>Todo</h4>
+                    @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.ToDo))
+                    {
+                        <WorkTaskView Data="item" Parent="bItem" />
+                    }
+                    <div class="add-task-button">
+                        <button @onclick="(() => CreateNewTask(bItem))">+</button>
+                    </div>
+                </DropTarget>
+                <DropTarget T="WorkTask" Drop="@OnDrop" Zone="inprogress" class="backlog-item-status backlog-in-progress">
+                    <h4>InProgress</h4>
+                    @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.InProgress))
+                    {
+                        <WorkTaskView Data="item" Parent="bItem" />
+                    }
+                </DropTarget>
+                <DropTarget T="WorkTask" Drop="@OnDrop" Zone="done" class="backlog-item-status backlog-done">
+                    <h4>Done</h4>
+                    @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.Done))
+                    {
+                        <WorkTaskView Data="item" Parent="bItem" />
+                    }
+                </DropTarget>
             </div>
         }
     </div>
@@ -113,10 +107,23 @@
         LoadSprint();
     }
 
-    void OnDrop(WorkTask task)
+    async void OnDrop(WorkTask task, string dropZone)
     {
-        
-        // Important: Invoke StateHasChanged() to update the page
+        if (dropZone == "todo")
+        {
+            task.State = StateOfItems.ToDo;
+        }
+        else if (dropZone == "inprogress")
+        {
+            task.State = StateOfItems.InProgress;
+        }
+        else if (dropZone == "done")
+        {
+            task.State = StateOfItems.Done;
+        }
+
+        _ = await http.PostAsJsonAsync($"worktask/{task.Id}", task);
+
         StateHasChanged();
     }
 }

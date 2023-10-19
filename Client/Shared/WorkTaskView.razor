@@ -2,10 +2,10 @@
 @inject DialogService DialogService
 @inject HttpClient http
 
-<Draggable Data="Data">
+<Draggable Data="Data" Zone="@Zone">
     <div class="task-box">
         <RadzenTextBox @bind-Value="Data.Name" Style="width:80%; display: block" Name="Name" onblur="@(() => UpdateTask())" />
-        <RadzenNumeric @bind-Value=@Data.TimeRemaining onblur="@(() => UpdateTask())" Style="width:50px; display: block" />
+        <RadzenNumeric @bind-Value=@Data.TimeRemaining onblur="@(() => UpdateTask())" Style="width:50px; display: block"/>
         <RadzenDropDown @bind-Value="Data.State" Data="@states" TextProperty="" ValueProperty="" Style="width:80%; display: block;" onblur="@(() => UpdateTask())">
             <Template>
                 @Enum.GetName(typeof(StateOfItems), context)
@@ -20,6 +20,9 @@
 
     [Parameter]
     public BacklogItem? Parent { get; set; }
+
+    [Parameter]
+    public string Zone { get; set; }
 
     IEnumerable<StateOfItems> states = ((StateOfItems[])Enum.GetValues(typeof(StateOfItems))).ToList();
 

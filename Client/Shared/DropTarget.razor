@@ -2,7 +2,7 @@
 @using scrum_board_tool.Client.Data
 @inject DragAndDropService DragAndDropService
 
-<div ondragover="event.preventDefault()" @ondrop="@OnDrop">
+<div ondragover="event.preventDefault()" @ondrop="@OnDrop" class="@Class">
     @ChildContent
 </div>
 
@@ -14,13 +14,16 @@
     public string Zone { get; set; }
 
     [Parameter]
-    public Action<T> Drop { get; set; }
+    public Action<T, string> Drop { get; set; }
+
+    [Parameter]
+    public string Class { get; set; }
 
     void OnDrop()
     {
-        if (Drop != null && DragAndDropService.Accepts(Zone))
+        if (Drop != null)
         {
-            Drop((T)DragAndDropService.Data);
+            Drop((T)DragAndDropService.Data, Zone);
         }
     }
 }

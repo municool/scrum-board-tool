@@ -8,7 +8,7 @@
         public int TimeRemaining { get; set; }
         public StateOfItems State { get; set; }
 
-        public virtual BacklogItem BacklogItem { get; set; } = null!;
+        public virtual BacklogItem? BacklogItem { get; set; } = null!;
         public virtual User? User { get; set; } = null!;
     }
 }
