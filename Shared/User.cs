@@ -12,7 +12,7 @@
         public string Name { get; set; } = string.Empty;
         public Role Role { get; set; }
 
-        public virtual Project Project { get; set; } = null!;
+        public virtual Project? Project { get; set; } = null!;
         public virtual ICollection<WorkTask> Tasks { get; set; } = null!;
     }
 }

@@ -30,7 +30,7 @@ namespace scrum_board_tool.Server.Controllers
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                return context.Project.FirstOrDefault(p => p.Id == id);
+                return context.Project.Include(p => p.Users).FirstOrDefault(p => p.Id == id);
             }
         }
 

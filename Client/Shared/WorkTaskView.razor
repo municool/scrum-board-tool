@@ -4,13 +4,14 @@
 
 <Draggable Data="Data" Zone="@Zone">
     <div class="task-box">
+        <span class="delete-task" @onclick="@OnDelete">X</span>
         <RadzenTextBox @bind-Value="Data.Name" Style="width:80%; display: block" Name="Name" onblur="@(() => UpdateTask())" />
-        <RadzenNumeric @bind-Value=@Data.TimeRemaining onblur="@(() => UpdateTask())" Style="width:50px; display: block"/>
-        <RadzenDropDown @bind-Value="Data.State" Data="@states" TextProperty="" ValueProperty="" Style="width:80%; display: block;" onblur="@(() => UpdateTask())">
+        <RadzenDropDown @bind-Value="Data.User" Data="@Project.Users" TextProperty="Name" ValueProperty="" Style="width:80%; display: block;" onblur="@(() => UpdateTask())">
             <Template>
-                @Enum.GetName(typeof(StateOfItems), context)
+                @context.Name
             </Template>
         </RadzenDropDown>
+        <RadzenNumeric @bind-Value="Data.TimeRemaining" onblur="@(() => UpdateTask())" Style="width:50px; display: block"/>
     </div>
 </Draggable>
 
@@ -24,7 +25,18 @@
     [Parameter]
     public string Zone { get; set; }
 
+    [Parameter]
+    public Action<WorkTask> Delete{ get; set; }
+
+    [Parameter]
+    public Project Project{ get; set; }
+
     IEnumerable<StateOfItems> states = ((StateOfItems[])Enum.GetValues(typeof(StateOfItems))).ToList();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
 
     async void UpdateTask()
     {
@@ -37,5 +49,10 @@
         Data = await http.GetFromJsonAsync<WorkTask>($"worktask/{Data?.Id}");
 
         StateHasChanged();
+    }
+
+    async void OnDelete()
+    {
+        Delete(Data);
     }
 }

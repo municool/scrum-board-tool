@@ -35,7 +35,7 @@
                     <h4>Todo</h4>
                     @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.ToDo))
                     {
-                        <WorkTaskView Data="item" Parent="bItem" />
+                        <WorkTaskView Data="item" Parent="bItem" Delete="@OnDelete" Project="@CurrentProject"/>
                     }
                     <div class="add-task-button">
                         <button @onclick="(() => CreateNewTask(bItem))">+</button>
@@ -45,14 +45,14 @@
                     <h4>InProgress</h4>
                     @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.InProgress))
                     {
-                        <WorkTaskView Data="item" Parent="bItem" />
+                        <WorkTaskView Data="item" Parent="bItem" Delete="@OnDelete" Project="@CurrentProject" />
                     }
                 </DropTarget>
                 <DropTarget T="WorkTask" Drop="@OnDrop" Zone="done" class="backlog-item-status backlog-done">
                     <h4>Done</h4>
                     @foreach (var item in bItem.Tasks.Where(t => t.State == StateOfItems.Done))
                     {
-                        <WorkTaskView Data="item" Parent="bItem" />
+                        <WorkTaskView Data="item" Parent="bItem" Delete="@OnDelete" Project="@CurrentProject" />
                     }
                 </DropTarget>
             </div>
@@ -124,6 +124,13 @@
 
         _ = await http.PostAsJsonAsync($"worktask/{task.Id}", task);
 
+        StateHasChanged();
+    }
+
+    async void OnDelete(WorkTask task)
+    {
+        _ = await http.DeleteAsync($"worktask/{task.Id}");
+        LoadSprint();
         StateHasChanged();
     }
 }

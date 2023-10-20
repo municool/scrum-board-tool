@@ -50,12 +50,12 @@ namespace scrum_board_tool.Server.Controllers
             using (var context = _dbContextFactory.CreateDbContext())
             {
                 var currentDate = DateTime.Now;
-                var currentS = context.Sprint.Include(s => s.BacklogItems).ThenInclude(b => b.Tasks).FirstOrDefault(s => s.StartDate <= currentDate && s.EndDate >= currentDate);
+                var currentS = context.Sprint.Include(s => s.BacklogItems).ThenInclude(b => b.Tasks).ThenInclude(t => t.User).FirstOrDefault(s => s.StartDate <= currentDate && s.EndDate >= currentDate);
                 
                 if(currentS == null)
                 {
                     currentS = context.Sprint.Where(s => s.EndDate < currentDate)
-                                   .OrderByDescending(s => s.EndDate).Include(s => s.BacklogItems).ThenInclude(b => b.Tasks)
+                                   .OrderByDescending(s => s.EndDate).Include(s => s.BacklogItems).ThenInclude(b => b.Tasks).ThenInclude(t => t.User)
                                    .FirstOrDefault();
                 }
 

@@ -139,3 +139,16 @@ a, .btn-link {
     display: inline-block;
     cursor: move;
 }
+.task-box {
+    position: relative; /* Damit die Positionierung im Kontext der Task-Box erfolgt */
+}
+
+.delete-task {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    color: red;
+    font-size: 16px;
+}

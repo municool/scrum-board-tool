@@ -22,7 +22,7 @@ namespace scrum_board_tool.Server.Controllers
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                return context.Task.ToList();
+                return context.Task.AsNoTracking().ToList();
             }
         }
 
@@ -31,7 +31,7 @@ namespace scrum_board_tool.Server.Controllers
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                return context.Task.FirstOrDefault(p => p.Id == id);
+                return context.Task.Include(t => t.User).AsNoTracking().FirstOrDefault(p => p.Id == id);
             }
         }
 
@@ -40,7 +40,7 @@ namespace scrum_board_tool.Server.Controllers
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                var workTasks = context.Task.Where(b => b.BacklogItem.Id == bItemId).ToList();
+                var workTasks = context.Task.Include(t => t.User).AsNoTracking().Where(b => b.BacklogItem.Id == bItemId).ToList();
                 return workTasks;
             }
         }
@@ -72,7 +72,7 @@ namespace scrum_board_tool.Server.Controllers
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                var oldWorkTask = context.Task.FirstOrDefault(p => p.Id == id);
+                var oldWorkTask = context.Task.AsNoTracking().FirstOrDefault(p => p.Id == id);
 
                 if (oldWorkTask != null)
                 {
@@ -80,6 +80,7 @@ namespace scrum_board_tool.Server.Controllers
                     oldWorkTask.Description = workTask.Description;
                     oldWorkTask.State = workTask.State;
                     oldWorkTask.TimeRemaining = workTask.TimeRemaining;
+                    oldWorkTask.User = context.User.FirstOrDefault(u => workTask.User != null && u.Id == workTask.User.Id);
 
                     context.Task.Update(oldWorkTask);
                     context.SaveChanges();

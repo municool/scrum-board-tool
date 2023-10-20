@@ -23,7 +23,7 @@ namespace scrum_board_tool.Server.Controllers
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                return context.User.ToList();
+                return context.User.AsNoTracking().ToList();
             }
         }
 
@@ -32,7 +32,7 @@ namespace scrum_board_tool.Server.Controllers
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                return context.User.FirstOrDefault(p => p.Id == id);
+                return context.User.AsNoTracking().FirstOrDefault(p => p.Id == id);
             }
         }
 
@@ -41,7 +41,7 @@ namespace scrum_board_tool.Server.Controllers
         {
             using (var context = _dbContextFactory.CreateDbContext())
             {
-                var users = context.User.Where(u => u.Project.Id == projectId).ToList();
+                var users = context.User.AsNoTracking().Where(u => u.Project.Id == projectId).ToList();
                 return users;
             }
         }
