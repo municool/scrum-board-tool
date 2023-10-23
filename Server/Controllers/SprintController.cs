@@ -58,6 +58,12 @@ namespace scrum_board_tool.Server.Controllers
                                    .OrderByDescending(s => s.EndDate).Include(s => s.BacklogItems).ThenInclude(b => b.Tasks).ThenInclude(t => t.User)
                                    .FirstOrDefault();
                 }
+                if (currentS == null)
+                {
+                    currentS = context.Sprint.Where(s => s.StartDate > currentDate)
+                                   .OrderByDescending(s => s.EndDate).Include(s => s.BacklogItems).ThenInclude(b => b.Tasks).ThenInclude(t => t.User)
+                                   .FirstOrDefault();
+                }
 
                 return currentS;
             }

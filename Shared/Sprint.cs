@@ -12,7 +12,7 @@
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 
-        public virtual Project Project { get; set; } = null!;
+        public virtual Project? Project { get; set; } = null!;
         public virtual ICollection<BacklogItem> BacklogItems { get; set; } = null!;
     }
 }
