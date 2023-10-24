@@ -10,10 +10,5 @@
             Data = data;
             Zone = zone;
         }
-
-        public bool Accepts(string zone)
-        {
-            return Zone == zone;
-        }
     }
 }
